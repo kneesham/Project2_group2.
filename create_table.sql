@@ -1,3 +1,5 @@
+DROP DATABASE IF EXISTS `project2`; 
+-- needed to add this to re-run the sql otherwise you will get an error if the database exists already.
 CREATE DATABASE IF NOT EXISTS `project2` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
 USE `project2`;
 
