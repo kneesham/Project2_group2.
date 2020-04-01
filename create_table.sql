@@ -1,3 +1,4 @@
+
 DROP DATABASE IF EXISTS `project2`; 
 -- needed to add this to re-run the sql otherwise you will get an error if the database exists already.
 CREATE DATABASE IF NOT EXISTS `project2` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
@@ -39,6 +40,13 @@ CREATE TABLE IF NOT EXISTS `has_friends` (
 	`user_id` int(10) NOT NULL,
     `friend_id` int(10) NOT NULL
 );
+INSERT INTO `has_friends` VALUES 
+    (987654321, 314596728),
+    (987654321, 123456789),
+    (314596728, 987654321),
+    (314596728, 123456789),
+    (123456789, 987654321),
+    (123456789, 314596728);
 
 DROP TABLE IF EXISTS `competes`;
 CREATE TABLE IF NOT EXISTS `competes` (
