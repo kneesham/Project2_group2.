@@ -84,6 +84,7 @@ INSERT INTO `event` (`Event_id`,`Race_Name`,`Race_Location`,`Race_Date`,`Race_Ty
 
 DROP TABLE IF EXISTS `event_results`;
 CREATE TABLE IF NOT EXISTS `event_results` (
+-- TO DO: add constraint to check the date is in the past.
   `Result_id` int(10) NOT NULL,
   `Race_Name` varchar(50) NOT NULL,
   `Race_Type` varchar(20) NOT NULL CHECK (`Race_Type` in ('5K', 'Marathon', 'Half-Marathon')),
