@@ -14,14 +14,16 @@ $conn = mysqli_connect($dbhost, $dbuser, $dbpassword, $dbname) or die("Connectio
 if ( isset( $_POST['submit'] ) ) { // check if the email and password exist in the database.
 
     $user_email = $_POST['user_email']; $password = $_POST['user_password']; // display the results
-    $sql = "SELECT name, email, `password` FROM users WHERE email = '$user_email' AND password = '$password'";
+    $sql = "SELECT Id, name, email, `password` FROM users WHERE email = '$user_email' AND password = '$password'";
 
     $result = mysqli_query($conn, $sql);
     $result_to_array = mysqli_fetch_array($result);
    
     if ($result_to_array){
         // reroute\
-        header("Location: ./php/user_home.php?username=" . "$result_to_array[0]");
+        print_r($result_to_array);
+
+        header("Location: ./php/user_home.php?id=$result_to_array[0]&username=$result_to_array[1]&table_index=0");
     }
     else {
         echo "it was false";
@@ -37,6 +39,7 @@ if ( isset( $_POST['submit'] ) ) { // check if the email and password exist in t
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
         <link href="./css/login.css" rel="stylesheet">
+        <script type="module" src="js/generateUsers.js"></script>
     </head>
     <body class="text-center">
 

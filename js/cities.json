@@ -1,0 +1,20 @@
+{
+    "Kansas City" : "Location: ../php/events.php?city='Kansas City'",
+    "St. Louis" : "Location: ../php/events.php?city='St. Louis'",
+    "Springfield" : "Location: ../php/events.php?city='Springfield'",
+    "Independence" : "Location: ../php/events.php?city='Independence'",
+    "Columbia" : "Location: ../php/events.php?city='Columbia'",
+    "Lees Summit" : "Location: ../php/events.php?city='Lees Summit'",
+    "OFallon" : "Location: ../php/events.php?city='OFallon'",
+    "St. Joseph" : "Location: ../php/events.php?city='St. Joseph'",
+    "St. Charles" : "Location: ../php/events.php?city='St. Charles'",
+    "St. Peters" : "Location: ../php/events.php?city='St. Peters'",
+    "Blue Springs" : "Location: ../php/events.php?city='Blue Springs'",
+    "Florissant" : "Location: ../php/events.php?city='Florissant'",
+    "Joplin" : "Location: ../php/events.php?city='Joplin'",
+    "Chesterfield" : "Location: ../php/events.php?city='Chesterfield'",
+    "Jefferson City " : "Location: ../php/events.php?city='Jefferson City '",
+    "Cape Girardeau" : "Location: ../php/events.php?city='Cape Girardeau'",
+    "Wildwood" : "Location: ../php/events.php?city='Wildwood'",
+    "University City" : "Location: ../php/events.php?city='University City'"
+}
