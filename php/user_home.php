@@ -20,37 +20,79 @@ $tblArr[] = "event_results";
 $tblArr[] = "personal_records";
 
 
+
 $table_name = $tblArr[$table_index];
 // WILL BE THE TABLE NAMES OF THE DATABASE
 
-$sql = "SHOW COLUMNS FROM $table_name";
+$sql = "SHOW COLUMNS FROM $table_name;";
 $get_columns = mysqli_query($conn, $sql);
 
 while ($column_name = mysqli_fetch_array($get_columns)) { // this will get the column headers
     $column_names[] = $column_name['0']; // fields array created here.
 }
 
-$user_events_sql = "SELECT * FROM  $table_name WHERE `Runner_id` = $user_id";
+$user_events_sql = "SELECT * 
+                    FROM  $table_name t
+                    WHERE t.`Runner_id` = $user_id
+                    and t.`Result_id` IN
+                        (SELECT Result_id
+                         FROM event_results 
+                        --  WHERE Runner_id = 1
+                        );";
+
 $table_query = mysqli_query($conn, $user_events_sql);
+
+
+
+$events = array();
+$events_dates = array();
+// this will be all of the evets ran by the user.
+
+$count = 0;
 
 while ($event_result = mysqli_fetch_array($table_query)) {
   $event_results[] = $event_result;
 
-
-
-  
-}
-echo count($event_results);
-
-
-$other_runners_sql = "SELECT Runner_id,	Runner_Time, Finish_Position FROM  $table_name WHERE NOT `Runner_id` = $user_id AND `Result_id` = " . $event_results[0][0] .";";
-$other_table_query = mysqli_query($conn, $other_runners_sql);
-
-while ($competitor_result = mysqli_fetch_array($other_table_query)) {
-    $competitor_results[] = $competitor_result;
+  if (!in_array($event_results[$count][0], $events)) {
+      // push the user's event into the event array.
+    array_push($events, $event_results[$count][0]);
+    
+  }
+  $count++;
 }
 
-print_r($competitor_results[1]);
+//////////////////////////////////////// IMPORTANT CODE //////////////////////////
+
+$get_all_other_users = "SELECT * 
+                        FROM  $table_name t
+                        WHERE t.`Result_id` IN " . "('" . implode("','" , $events) . "')"
+                        . "AND NOT t.`Runner_id` = $user_id";
+
+$table_of_others = mysqli_query($conn, $get_all_other_users);
+
+while ($other_event_result = mysqli_fetch_array($table_of_others)) {
+    $other_event_results[] = $other_event_result;
+
+}
+// I used this section in order to get every other user that has competed in the races as well as the main user.
+
+
+$username = str_replace(" ","", $_GET["username"]);
+
+for ($j = 0; isset($events) && $j < count($events) ; $j++) {
+
+    $user_events_sql = "SELECT `Race_Name` , `Race_Date` 
+    FROM  `event`
+    WHERE `Event_id` = $events[$j];";
+    
+
+    $get_name = mysqli_query($conn, $user_events_sql);
+    $event_data = mysqli_fetch_array($get_name);
+    
+    $events[$j] = str_replace("!", "", $event_data[0]);
+    array_push($events_dates, $event_data[1]);
+}
+
 
 ?>
 
@@ -72,9 +114,15 @@ print_r($competitor_results[1]);
     <!-- Font Awesome JS -->
     <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js" integrity="sha384-tzzSw1/Vo+0N5UhStP3bvwWPq+uvzCMfrN1fEFe+xBmv1C/AtVX5K0uZtmcHitFZ" crossorigin="anonymous"></script>
     <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js" integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js" integrity="sha256-R4pqcOYV8lt7snxMQO/HSbVCFRPMdrhAFMH+vr9giYI=" crossorigin="anonymous"></script>
+    <script src="../js/chart.js"> </script>
+   
+
 </head>
 
-<body>
+
+
+<body onload="<?php echo "createChart(" . "'$username'" . ", " ."['" . implode("', '", $events_dates) . "']" . ")"; ?> "> 
     <div class="wrapper">
         <!-- Sidebar  -->
         <nav id="sidebar">
@@ -135,12 +183,25 @@ print_r($competitor_results[1]);
             </nav>
             <h2 style="margin-left: 5%;">USER COMPLETED EVENTS</h2>
 
+            <label id="date-label">viewing races for:</label>
+            <select id="dateSelector"></select>
+            <!-- for the selection of the year for the graph -->
+
+            <canvas id="myRaceChart" width="400" height="100"></canvas>
+            <!-- This is the graph for how many races the user has competed in -->
+
             <div class="content-container">
              <!-- Display a new table for each of the user's event results -->
              <!-- e.g. if a user has competed in multiple events then we should see that amount of tables -->
-                <?php for ($j = 0; isset($event_results) && $j < count($event_results) ; $j++) { ?>        
-                        <?php echo '<table class="table table-light result-table">
-                                    <thead style="background-color: #5DADEC;">'?>
+                <?php for ($j = 0; isset($events) && $j < count($events) ; $j++) { ?>  
+
+                        <?php
+
+                             echo "<h3 class='table-name'>" . $events[$j] ."</h3>
+                                    <table class='table table-light result-table'>
+                                    <thead style='background-color: #5DADEC;'>"
+                                    
+                        ?>
                     <!-- DISPLAYING THE COLUMN HEADERS -->
                     <tr>
                         <?php foreach ($column_names as $number => $name) {
@@ -155,10 +216,9 @@ print_r($competitor_results[1]);
                     </tr>
 
                 </thead>
-                
                     <tbody>
                         <tr style="background-color: grey;">
-                            <?php for ($i = 1; isset($event_results) && $i <= count($event_results); $i++) { ?>
+                            <?php for ($i = 1; isset($column_names) && $i < count($column_names); $i++) { ?>
                             <!-- LOOP OVER ALL OF THE event_resultS FROM THE DATABASE -->
                                 <td class="event_results">
                                         <!-- ECHO OUT ALL OF THE COLUMN VALUES IN EACH event_result -->
@@ -172,28 +232,40 @@ print_r($competitor_results[1]);
                                         <button style="margin-left: 1em;">VIEW RUNNER'S EVENTS</button>
                             </td>
                         </tr>
-                        
-                            <?php for ($k = 0; isset($competitor_results) && $k < count($competitor_results); $k++) { ?>
-                                <tr style="background-color: white;">
-                            <!-- LOOP OVER ALL OF THE event_resultS FROM THE DATABASE -->
-                                <?php for ($z = 0; isset($event_results) && $z < count($event_results); $z++) { ?>
-                                    <td class="event_results">
-                                        <!-- ECHO OUT ALL OF THE COLUMN VALUES IN EACH event_result -->
-                                        <?php echo $competitor_results[$k][$z];?>
-                                </td>
 
-                                <?php } ?>
+                        <?php for ($k = 0; isset($other_event_results) && $k < count($other_event_results); $k++) {
+                            
+                                if ($other_event_results[$k][0] ===$event_results[$j][0]){
+                                ?>
+
+                            <tr style="background-color: white;">
+                                <?php 
+                                
+                                for ($i = 1; isset($column_names) && $i < count($column_names); $i++) { ?>
+                                <!-- LOOP OVER ALL OF THE event_resultS FROM THE DATABASE -->
+                                    
+                                            <!-- ECHO OUT ALL OF THE COLUMN VALUES IN EACH event_result -->
+                                            <td class='event_results'>
+                                            <?php
+                                            
+                                                echo $other_event_results[$k][$i];
+                                            }
+                                            ?>
+                                            </td>
+                                
+                                    
+                                
                                 <td class="buttons">
-                                        <button>ADD FRIEND</button>
-                                        <button style="margin-left: 1em;">VIEW PERSONAL RECORDS</button>
-                                        <button style="margin-left: 1em;">VIEW RUNNER'S EVENTS</button>
+                                            <button>ADD FRIEND</button>
+                                            <button style="margin-left: 1em;">VIEW PERSONAL RECORDS</button>
+                                            <button style="margin-left: 1em;">VIEW RUNNER'S EVENTS</button>
                                 </td>
+                            </tr>
                             <?php } ?>
-
-
+                        <?php }?>
 
                  <?php echo '</tbody>
-                             </table> '
+                             </table> ';
                 ?>
                 <?php } ?>
             </div>

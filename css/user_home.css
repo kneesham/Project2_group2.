@@ -1,0 +1,19 @@
+#myRaceChart {
+    display: block;
+    width:  90% !important ; 
+    height: 20%;
+    margin-left: 5%;
+    margin-right: 5% !important;
+    margin-bottom: 10px;
+    border: 10px solid rgb(0, 225, 202);
+    border-radius: 20px;
+}
+
+#dateSelector {
+
+}
+
+#date-label {
+
+    margin-left: 5%;
+}

@@ -134,13 +134,22 @@ ul ul a {
 
 .result-table {
     width: 90%;
-    margin-top: 5%; 
     margin-left: 5%;
     margin-right: 5%;
-    
     border-radius: 5px;
     /* background-color: #e5e5e5; */
     text-align: center;
     box-shadow: 15px 20px 15px rgba(21, 21, 21, 0.7);
 
 }
+
+.table-name {
+    margin-top: 5%; 
+    margin-left: 5%;
+    margin-right: 5%;
+    padding-left: 2.5%;
+    margin-bottom: 0 !important;
+    background-color: black;
+    color: rgb(0, 225, 202);
+}
+
