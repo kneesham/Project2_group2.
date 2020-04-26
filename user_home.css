@@ -4,16 +4,21 @@
     height: 30% !important;
     margin-left: 5%;
     margin-right: 5% !important;
-    margin-bottom: 10px;
+    border-bottom: none;
     border: 10px solid rgb(0, 225, 202);
+    background-color: #f2ffcc;
     border-radius: 20px;
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    border-bottom: none;    
 }
 
-#dateSelector {
 
+
+#dateSelector {
+    width: 10%;;
 }
 
 #date-label {
-
     margin-left: 5%;
 }

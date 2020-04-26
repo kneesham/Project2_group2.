@@ -36,7 +36,7 @@ const userList = () => {
             let userId = Math.round(Math.random() * Math.pow(10, 9)); // will be at max 9 digits long.
             let numRaces = Math.floor(( (i > 175 ? (Math.random() * 10000 ) : (Math.random() * i * 10)) / 100 )) ;
             let city = cities[Math.floor(Math.random() * cities.length)];
-            let email = fullName.replace(" ", "@") + emailExt[Math.floor(Math.random() * emailExt.length)];
+            let email = fullName.replace(" ", "") + "@" + emailExt[Math.floor(Math.random() * emailExt.length)];
             let userPassword = fullName.replace(" ", symbolList[Math.floor(Math.random() * symbolList.length)]) + symbolList[Math.floor(Math.random() * symbolList.length)];
 
             while (userObj.hasOwnProperty(userId)) { // loop until the uerId is not a duplicate.
@@ -112,75 +112,88 @@ databaseObj.users = userList();
 databaseObj.races = raceList();
 //// BOTH OF THESE NEED TO BE CALLED BEFORE CREATING THE EVENT RESULTS
 
-
 const eventResults = () => {
     let eventResObj = [];
 
     databaseObj.users.forEach(user => {
 
         let tempCompleted = [];
-        let times = [];
-        
+
         for (let i = 0; i < user.NumRaces; i++) {
             // assign an event for every event a user has completed.
             let raceIndex = Math.floor(Math.random() * databaseObj.races.length);
             let resultId = databaseObj.races[raceIndex].EventId;
             let timeInMin = Math.floor(Math.random() * 9.5 * databaseObj.races[raceIndex].RaceDistance);
 
-            let hours = Math.floor(timeInMin/60);
-            let minutes = Math.floor(timeInMin - hours * 60);
-            let seconds = Math.floor(Math.random() * 60);
-            let timeString = hours + ":" + minutes + ":" + seconds;
-
             while(tempCompleted.includes(resultId)){
                 // get a new raceid until its not a duplicate.
                 resultId = databaseObj.races[Math.floor(Math.random() * databaseObj.races.length)].EventId;
             }
             
-
             tempCompleted.push(resultId);
             // push the temp completed
-            // console.log(resultId + " : " + user.Id);
             
             eventResObj.push({
                 ResultId: resultId,
                 RunnerId: user.Id,
-                time: timeString,
-                place: (i + 1)
+                time: timeInMin
             });
         }
     });
-
-    // let completedEvents = [...new Set(eventResObj.map(result => result.ResultId))];
-    // let eventIndex = 0;
-    // let places = [];
-
-
-    // console.log(completedEvents);
-
-    // eventResObj.forEach(completedEvent => {
-
-    //     if(completedEvent.ResultId === completedEvents[eventIndex] ) {
-    //         console.log(completedEvent.ResultId);
-    //         places.push(place);
-
-    //     }
-    //     else {
-
-
-    //         eventIndex++;
-    //     }
-        
-    // });
-
-
-
     return eventResObj;
-    // remove any duplicates
+};
+
+const getPlaceRacers = (eventResults) => {
+
+    // sort both arrays such that they resulting id's are in order
+
+    eventResults.sort((a, b) => {
+        // sorting based on the result id itself and then by the time in minitues.
+        const id1 = parseInt(a.ResultId);
+        const id2 = parseInt(b.ResultId);
+        return (id1 > id2 ? 1 :
+            (id1 < id2) ? -1 :
+                (a.time > b.time) ? 1 : -1);
+    });
+
+    let placeMarker = 1;
+    for (let i = 1; i < eventResults.length; i++) {
+
+        let timeInMin = eventResults[i - 1].time;
+        let hours = Math.floor(timeInMin / 60);
+        let minutes = Math.floor(timeInMin - hours * 60);
+        let seconds = Math.floor(Math.random() * 60);
+
+        if (eventResults[i - 1].ResultId === eventResults[i].ResultId) {
+            //   console.log('twas true');
+            eventResults[i - 1].place = placeMarker;
+            eventResults[i - 1].time = (hours < 10 ? ("0" + hours ) : hours ) +  ":"
+                                        + (minutes < 10 ? ("0" + minutes ) : minutes ) + ":"
+                                        + (seconds < 10 ? ("0" + seconds ) : seconds );
+            placeMarker++;
+        }
+
+        else {
+            eventResults[i - 1].place = placeMarker;
+            eventResults[i - 1].time = (hours < 10 ? ("0" + hours ) : hours ) +  ":"
+                                        + (minutes < 10 ? ("0" + minutes ) : minutes ) + ":"
+                                        + (seconds < 10 ? ("0" + seconds ) : seconds );
+            placeMarker = 1;
+        }
+        if ( (i +1) === eventResults.length ){
+            eventResults[i].place = placeMarker;
+            eventResults[i].time = (hours < 10 ? ("0" + hours ) : hours ) +  ":"
+                                        + (minutes < 10 ? ("0" + minutes ) : minutes ) + ":"
+                                        + (seconds < 10 ? ("0" + seconds ) : seconds );
+
+        }
+    }
+
+    return eventResults;
 };
 
 
-databaseObj.eventResults = eventResults();
+databaseObj.eventResults =  getPlaceRacers( eventResults() );
 
 
 console.log(databaseObj);
