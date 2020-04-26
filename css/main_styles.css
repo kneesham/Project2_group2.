@@ -127,7 +127,7 @@ ul ul a {
     margin-right: 5%;
     height: 90vh;
     overflow: auto;
-    border: 5px solid black;
+    border: 10px solid rgb(0, 225, 202);
     background-image: url("https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcTvzcBhvnUfteL2XVEODw2mo91LW3psO3QuieoSGMBcIaX8Ox8s&usqp=CAU");
 }
 
@@ -144,6 +144,9 @@ ul ul a {
 }
 
 .table-name {
+    height: 10%;
+    border-top-left-radius: 20px !important;
+    border-top-right-radius: 20px !important;
     margin-top: 5%; 
     margin-left: 5%;
     margin-right: 5%;
