@@ -3,8 +3,8 @@ function queryToTest($connection, $query_string){
     // USED TO SIMPLIFY CODE PERFORMING ERROR CHECKING AT THE SAME TIME
     // RELOAD THE THE PAGE WITH ONLY THE TABLE INDEX FROM WHERE IT LEFT OFF.
     if (mysqli_query($connection, $query_string) === TRUE) {
-        echo "$query_string";
-        echo "successfull";
+        // echo "$query_string";
+        echo "successfull:    ";
     } else {
         echo "Error: in " . $query_string . "<br>";
     }
@@ -21,7 +21,7 @@ $query = file_get_contents("../sql/create_db.sql");
 $stmt = $db->prepare($query);
 
 if ($stmt->execute())
-     echo "Success";
+     echo "Success WOOOOOOOOOOOOOOOOOO:    ";
 else 
      echo "Fail";
 
@@ -31,36 +31,80 @@ $conn = mysqli_connect($dbhost, $dbuser, $dbpassword, $dbname) or die("Connectio
 // connection to the database.
 
 
-
-
 $isSubmitted = $_GET["submitted"];
 $formJson = $_POST["json-from-js"];
 
-$formData = json_decode($formJson);
+$formJson1 = $_POST["json-from-js1"];
+$formJson2 = $_POST["json-from-js2"];
+
+
+$formData1 = json_decode($formJson);
+
+
 
 if($isSubmitted){
     // $add_row_sql = "INSERT INTO `users` (`Id`,`Name`,`Num_races`,`City`, `email`, `password`) VALUES
     // (1,'test', 0,'St. Louis','zach@asdafasdfasdfadsfl.com', 'password');";
     $add_row_sql = "INSERT INTO `users` (`Id`,`Name`,`Num_races`,`City`, `email`, `password`) VALUES " ;
-    for ($i = 0; $i < count($formData); $i++) { 
-    //    echo "<p>" . $formData[$i]->Id . "   " . $formData[$i]->FullName . "</p>";
-       $add_row_sql .=  "( " . $formData[$i]->Id . ", '" . $formData[$i]->FullName . "', " 
-                            . $formData[$i]->NumRaces . ", '" . $formData[$i]->City . "',  "
-                            . " '" . $formData[$i]->Email . "'," .  " '" . $formData[$i]->UserPass . "' ";
+    for ($i = 0; $i < count($formData1); $i++) { 
 
-        if ($i - count($formData) === - 1 ) {
+       $add_row_sql .=  "( " . $formData1[$i]->Id . ", '" . $formData1[$i]->FullName . "', " 
+                            . $formData1[$i]->NumRaces . ", '" . $formData1[$i]->City . "',  "
+                            . " '" . $formData1[$i]->Email . "'," .  " '" . $formData1[$i]->UserPass . "' ";
+
+        if ($i - count($formData1) === - 1 ) {
             $add_row_sql .= ");";
         }
         else {
             $add_row_sql .= "), ";
-        }
-        
-        
+        }   
     }
-    echo "$add_row_sql";
-
 
     queryToTest($conn, $add_row_sql);
+
+    $formData3 = json_decode($formJson2);
+    $add_event_sql = "INSERT INTO `event` (`Event_id`, `Race_Name`, `Race_Location`, `Race_Date`, `Race_Type`, `Distance`) VALUES ";
+
+
+    for ($i = 0; $i < count($formData3); $i++) { 
+
+        $add_event_sql .=  "( " . $formData3[$i]->EventId . ", '" . $formData3[$i]->RaceName . "', '" 
+                             . $formData3[$i]->RaceLocation . "', '" . $formData3[$i]->RaceDate . "',  "
+                             . " '" . $formData3[$i]->RaceType . "'," .  " " . $formData3[$i]->RaceDistance . " ";
+ 
+         if ($i - count($formData3) === - 1 ) {
+             $add_event_sql .= ");";
+         }
+         else {
+             $add_event_sql .= "), ";
+         }   
+     }
+
+     queryToTest($conn, $add_event_sql);
+
+
+    $formData2 = json_decode($formJson1);
+    $add_eventRes_sql = "INSERT INTO `event_results` (`Result_id`, `Runner_id`, `Runner_Time`, `Finish_Position`) VALUES ";
+
+    for ($i = 0; $i < count($formData2); $i++) { 
+
+        $add_eventRes_sql .=  "( " . $formData2[$i]->ResultId . ", " . $formData2[$i]->RunnerId . ", '" 
+                             . $formData2[$i]->time . "', " . $formData2[$i]->place . "  ";
+ 
+         if ($i - count($formData2) === - 1 ) {
+             $add_eventRes_sql .= ");";
+         }
+         else {
+             $add_eventRes_sql .= "), ";
+         }   
+     }
+
+
+    // echo "$add_event_sql";
+
+    queryToTest($conn, $add_eventRes_sql);
+
+
 }
 
 
@@ -81,17 +125,11 @@ if($isSubmitted){
         <?php
             if (!$isSubmitted){
                 echo  '<form id="myJsonForm" action="./generateDb.php?submitted=true" method="POST">
-                <textarea name="json-from-js" id="textArea" cols="100" rows="30"></textarea>
+                <textarea name="json-from-js" id="textArea" cols="200" rows="30"></textarea>
+                <textarea name="json-from-js1" id="textArea1" cols="200" rows="30"></textarea>
+                <textarea name="json-from-js2" id="textArea2" cols="200" rows="30"></textarea>
                 </form>';
             } 
-            else {
-                // for ($i=0; $i < count($formData); $i++) { 
-                //     foreach($formData[$i] as $child) {
-                //         echo "<p>$child </p>";
-                //      }
-                // }
-            }
         ?>
-        
     </body>
 </html>
