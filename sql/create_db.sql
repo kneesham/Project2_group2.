@@ -63,11 +63,11 @@ INSERT INTO `competes` VALUES
 DROP TABLE IF EXISTS `event`;
 CREATE TABLE IF NOT EXISTS `event` (
   `Event_id` int(10) NOT NULL,
-  `Race_Name` varchar(50) NOT NULL CHECK (`Race_Name` LIKE '_%'), 
+  `Race_Name` varchar(100) NOT NULL CHECK (`Race_Name` LIKE '_%'), 
     -- makeing sure there is at least a single character
-  `Race_Location` varchar(20) NOT NULL,
+  `Race_Location` varchar(50) NOT NULL,
   `Race_Date` date NOT NULL,
-  `Race_Type` varchar(20) NOT NULL CHECK (`Race_Type` in ('5K', 'Marathon', 'Half-Marathon')),
+  `Race_Type` varchar(100) NOT NULL CHECK (`Race_Type` in ("5K", "10K", "15K", "20K", "Half-marathon", "25K", "30K", "Marathon")),
   `Distance` numeric(5,2) NOT NULL
     
 )  DEFAULT CHARSET=utf8;
