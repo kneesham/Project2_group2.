@@ -1,9 +1,8 @@
 <?php
 // File Creator: Ted Nesham
-// Last Edited: 04-26-2020
+// Last Edited: 05-01-2020
 
-$table_index = intval(filter_input(INPUT_GET, "table_index"));
-$user_id = intval(filter_input(INPUT_GET, "id"));
+$user_id = intval(filter_input(INPUT_GET, "view"));
 
 $dbhost = "localhost";
 $dbuser = "root";
@@ -19,9 +18,8 @@ $cities = json_decode($city_json);
 
 $tblArr = array();
 $tblArr[] = "event_results";
-$tblArr[] = "personal_records";
 
-$table_name = $tblArr[$table_index];
+$table_name = $tblArr[0];
 // WILL BE THE TABLE NAMES OF THE DATABASE
 
 $sql = "SHOW COLUMNS FROM $table_name;";
@@ -37,7 +35,6 @@ $user_events_sql = "SELECT *
                     and t.`Result_id` IN
                         (SELECT Result_id
                          FROM event_results 
-                        --  WHERE Runner_id = 1
                         );";
 
 $table_query = mysqli_query($conn, $user_events_sql);
@@ -58,24 +55,6 @@ while ($event_result = mysqli_fetch_array($table_query)) {
   }
   $count++;
 }
-
-//////////////////////////////////////// IMPORTANT CODE //////////////////////////
-
-$get_all_other_users = "SELECT * 
-                        FROM  $table_name t
-                        WHERE t.`Result_id` IN " . "('" . implode("','" , $events) . "')"
-                        . "AND NOT t.`Runner_id` = $user_id";
-
-$table_of_others = mysqli_query($conn, $get_all_other_users);
-
-while ($other_event_result = mysqli_fetch_array($table_of_others)) {
-    $other_event_results[] = $other_event_result;
-
-}
-// I used this section in order to get every other user that has competed in the races as well as the main user.
-
-
-$username = str_replace(" ","", $_GET["username"]);
 
 for ($j = 0; isset($events) && $j < count($events) ; $j++) {
 
@@ -100,7 +79,7 @@ for ($j = 0; isset($events) && $j < count($events) ; $j++) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-    <title>MO Racin' <?php echo $username ?> </title>
+    <title>MO Racin' </title>
 
     <!-- Bootstrap CSS CDN -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
@@ -108,14 +87,12 @@ for ($j = 0; isset($events) && $j < count($events) ; $j++) {
     <link rel="stylesheet" href="../css/user_home.css">
     <link rel="stylesheet" href="../css/main_styles.css">
 
-    <!-- Font Awesome JS -->
-    <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js" integrity="sha384-tzzSw1/Vo+0N5UhStP3bvwWPq+uvzCMfrN1fEFe+xBmv1C/AtVX5K0uZtmcHitFZ" crossorigin="anonymous"></script>
-    <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js" integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY" crossorigin="anonymous"></script>
+    <!-- For Chart JS -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js" integrity="sha256-R4pqcOYV8lt7snxMQO/HSbVCFRPMdrhAFMH+vr9giYI=" crossorigin="anonymous"></script>
     <script src="../js/chart.js"> </script>
 </head>
 
-<body onload="<?php echo "createChart(" . "'$username'" . ", " ."['" . implode("', '", $events_dates) . "']" . ")"; ?> "> 
+<body onload="<?php echo "createChart(" . "''" . ", " ."['" . implode("', '", $events_dates) . "']" . ")"; ?> "> 
     <div class="wrapper">
         <!-- Sidebar  -->
         <nav id="sidebar">
@@ -125,21 +102,9 @@ for ($j = 0; isset($events) && $j < count($events) ; $j++) {
             </div>
 
             <ul class="list-unstyled components">
-                <p style="font-weight: bold;">🏃‍♂️ <?php echo $_GET["username"] ?> 🏃‍♂️</p> 
-                <!-- Fill with the actual username. -->
-                
                 <li>
-                    <a href="#">My personal records</a>
+                    <a href="javascript:history.back()">User Home Page</a>
                 </li>
-
-                <li>
-                    <a href="#">My Friends</a>
-                </li>
-
-                <li>
-                    <a href='<?php echo  "./st_louis.php?id=$user_id&username=$username&table_index=0" ?>'>Rigister for an event</a>
-                </li>
-                
             </ul>
         </nav>
 
@@ -148,11 +113,6 @@ for ($j = 0; isset($events) && $j < count($events) ; $j++) {
 
             <nav class="navbar navbar-expand-lg navbar-light bg-light">
                 <div class="container-fluid">
-                        
-                    <button style="margin-left: 3%;" type="button" id="sidebarCollapse" class="btn btn-info">
-                        <i class="fas fa-align-left"></i>
-                        <span>Toggle Sidebar</span>
-                    </button>
                     <button class="btn btn-dark d-inline-block d-lg-none ml-auto" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                         <i class="fas fa-align-justify"></i>
                     </button>
@@ -173,12 +133,9 @@ for ($j = 0; isset($events) && $j < count($events) ; $j++) {
                 <?php for ($j = 0; isset($events) && $j < count($events) ; $j++) { ?>  
 
                         <?php
-
                              echo "<h3 class='table-name'>" . $events[$j] .  "</h3>
-                                      
                                     <table class='table table-light result-table'>
-                                    <thead style='background-color: #5DADEC;'>"
-                                    
+                                    <thead style='background-color: #5DADEC;'>"; 
                         ?>
                     <!-- DISPLAYING THE COLUMN HEADERS -->
                     <tr>
@@ -189,7 +146,8 @@ for ($j = 0; isset($events) && $j < count($events) ; $j++) {
                                 }
                             }
                         ?>
-                        <td> <?php echo "<strong>( $events_dates[$j] )</strong>"?></td>
+                        <td> <?php echo "<strong> DATE </strong>"?></td>
+                        
                         <!-- FOR SPACING PURPOSES -->
                     </tr>
 
@@ -204,41 +162,10 @@ for ($j = 0; isset($events) && $j < count($events) ; $j++) {
                                 </td>
                                 
                             <?php } ?>
-                            <td class="buttons"> <?php echo $_GET["username"]?> </td>
+                                <td> <?php echo "<strong>( $events_dates[$j] )</strong>"?></td>
                         </tr>
-
-                        <?php for ($k = 0; isset($other_event_results) && $k < count($other_event_results); $k++) {
-                            
-                                if ($other_event_results[$k][0] === $event_results[$j][0]){
-                                ?>
-
-                            <tr style="background-color: white;">
-                                <?php 
-                                
-                                for ($i = 1; isset($column_names) && $i < count($column_names); $i++) { ?>
-                                <!-- LOOP OVER ALL OF THE event_resultS FROM THE DATABASE -->
-                                    
-                                            <!-- ECHO OUT ALL OF THE COLUMN VALUES IN EACH event_result -->
-                                            <td class='event_results'>
-                                            <?php
-                                            
-                                                echo $other_event_results[$k][$i];
-                                            }
-                                            ?>
-                                            </td>
-
-                                <td class="buttons">
-                                            <button onclick='<?php echo "addFriend(" . $other_event_results[$k][1] . ", $user_id)";?>' id="addFriend" class="btn btn-primary" >ADD FRIEND</button>
-                                            <button class="btn btn-primary" style="margin-left: 1em;"><a <?php echo "href='./selectedUserPr.php?view=" . $other_event_results[$k][1] . "'"; ?> >VIEW PERSONAL RECORDS</a></button>
-                                            <button class="btn btn-primary" style="margin-left: 1em;"><a <?php echo "href='./selectedUserEvents.php?view=" . $other_event_results[$k][1] . "'"; ?> >VIEW RUNNER'S EVENTS</a></button>
-                                </td>
-                            </tr>
-                            <?php } ?>
-                        <?php }?>
-
                  <?php echo '</tbody>
-                             </table> ';
-                ?>
+                             </table> ';?>
                 <?php } ?>
             </div>
         </div>
@@ -253,8 +180,6 @@ for ($j = 0; isset($events) && $j < count($events) ; $j++) {
 
     <script type="text/javascript" src="../js/sidebar.js"></script>
     <!-- FOR the sidebar toggle -->
-
-    <script type="text/javascript" src="../js/addFriend.js"></script>
     </body>
 </html>
 
